@@ -56,7 +56,7 @@ have hb1:0≤ b:=by
 have amgm:(a+1)*(b+1)≥ a*b+2*Real.sqrt (a*b)+1:=
 calc (a+1)*(b+1)=a*b+a+b+1:=by ring
  _=a*b+(Real.sqrt a)^2+(Real.sqrt b)^2+1:=by rw[Real.sq_sqrt ha1 ,Real.sq_sqrt hb1]
- _≥ a*b+2*Real.sqrt a*Real.sqrt b+1:=by linarith[two_mul_le_add_pow_two Real.sqrt a Real.sqrt b]
+ _≥ a*b+2*Real.sqrt a*Real.sqrt b+1:=by linarith[two_mul_le_add_pow_two (Real.sqrt a) (Real.sqrt b)]
  _=a*b+2*Real.sqrt (a*b)+1:=by simp[←(Real.sqrt_mul ha1 b),mul_assoc]
 
 have anotherhab :a*b+2*Real.sqrt (a*b)-1=0∨a*b-2*Real.sqrt (a*b) -1=0:=by
@@ -82,3 +82,44 @@ by linarith[amgm,anotherhab]
 open BigOperators
 
 theorem theorem_1abfa71b_2e7e_4b59_9af1_cb16f6cafea1 (i k : ℕ) (h₁ : k ≤ i) : ∑ n in Finset.Icc k i, choose n k = choose (i + 1) (k + 1) := by sorry
+--proof 4
+theorem theorem_f000e48f_6f30_408a_ac91_493fff4521d6 (f : ℕ → ℕ) (hf: f 1 = 1) (hf1: ∀ m n: ℕ, f (m + n) = f m + f n + m*n): ∀ n:ℕ, f n = n*(n + 1) / 2 := by
+    intro n
+    --have producteven:Even (n*(n+1)):=Nat.even_mul_succ_self n
+    induction' n with n h
+    case zero=>
+        have doublef:f 0+0=f 0+f 0:=
+            calc f 0+0=f 0:=by ring
+            _=f 0+f 0+0*0:=by apply hf1 0 0
+            _=f 0+f 0:=by ring
+        calc f 0=0:=by rw[← (add_left_cancel doublef)]
+        _=0 * (0 + 1) / 2:=by ring
+    case succ=>
+        have ge0: 0<2:=by norm_num
+        have plugin:f (n+1)=n*(n+1)/2+(n+1):=
+            calc f (n+1)=f n+f 1+n*1:=by rw[hf1 n 1]
+            _=n*(n+1)/2+1+n*1:=by rw[hf,h]
+            _=n*(n+1)/2+(n+1):=by ring
+        have doublef:2*f (n + 1)  =2*((n + 1) * (n + 1 + 1) / 2):=
+            calc 2*f (n+1)=2*(n*(n+1)/2+(n+1)):=by rw[plugin]
+            _=2*(n*(n+1)/2)+2*(n+1):=by rw[mul_add]
+            _=n*(n+1)+2*(n+1):=by rw[Nat.two_mul_div_two_of_even (Nat.even_mul_succ_self n)]
+            _=(n+1)*(n+1+1):=by ring
+            _=2*((n + 1) * (n + 1 + 1) / 2):=by rw[(Nat.two_mul_div_two_of_even (Nat.even_mul_succ_self (n+1)))]
+
+
+        apply Nat.eq_of_mul_eq_mul_left ge0 doublef
+
+
+--proof 5
+theorem theorem_337c29d8_7fce_47e8_97d8_b2489b8c61d5 (a : ℝ) : (a^3 - a + 2)^2 > 4 * a^2 * (a^2 + 1) * (a - 2) :=
+have h1:(a^3 - a + 2)^2-4 * a^2 * (a^2 + 1) * (a - 2)>0:=by
+    cases eq_or_ne a 0
+    case inl eqzero=>
+        simp[eqzero]
+    case inr nezero=>
+        have squaregezero:0<a^2:=zpow_two_pos_of_ne_zero nezero
+        calc (a^3 - a + 2)^2-4 * a^2 * (a^2 + 1) * (a - 2)=(a^2*(a-2))^2+2*(a^2)^2+8*a^2+(a-2)^2:=by ring
+        _≥ 8*a^2:=by linarith[sq_nonneg (a-2),sq_nonneg (a^2),sq_nonneg (a^2*(a-2))]
+        _> 0:=by linarith[squaregezero]
+by linarith[h1]
