@@ -84,21 +84,25 @@ open BigOperators
     induction i
     case zero=>
         have kzero:k=0:=Nat.eq_zero_of_le_zero h₁
+        have ineq1:0≤ 0:=by linarith
         calc ∑ n in Finset.Icc k 0, Nat.choose n k=∑ n in Finset.Icc 0 0, Nat.choose n 0:=by rw[kzero]
-        _=Nat.choose 0 0:=by sorry
+        _=Nat.choose 0 0+∑ n in ∅, Nat.choose n 0:=by rw[← Finset.add_sum_Ico_eq_sum_Icc ineq1 ,Finset.Ico_self]
+        _=Nat.choose 0 0 +0 :=by rw[Finset.sum_empty]
         _=Nat.choose 1 1:=by simp[Nat.choose_self 0,Nat.choose_self 1]
         _=Nat.choose (0+1) (0+1):=by norm_num
         _=Nat.choose (0+1) (k+1):=by rw[kzero]
     case succ i hi=>
         cases Nat.le_add_one_iff.mp h₁
         case inl kgood=>
-            calc ∑ n in Finset.Icc k (i + 1), Nat.choose n k=∑ n in Finset.Icc k i, Nat.choose n k+Nat.choose (i+1) k:=by sorry
+            calc ∑ n in Finset.Icc k (i + 1), Nat.choose n k=∑ n in Finset.Icc k i, Nat.choose n k+Nat.choose (i+1) k:=by apply Finset.sum_Icc_succ_top h₁
             _=Nat.choose (i+1) (k+1)+Nat.choose (i+1) k:=by rw[hi kgood]
             _=Nat.choose (i+1) k+Nat.choose (i+1) (k+1):=by rw[add_comm]
             _=Nat.choose (i+1+1) (k+1):=by rw[Nat.choose_succ_succ' (i+1) k]
         case inr keq=>
+            have ineq2:i+1 ≤ i+1:=by linarith
             calc ∑ n in Finset.Icc k (i + 1), Nat.choose n k= ∑ n in Finset.Icc (i+1) (i + 1), Nat.choose n (i+1):=by rw[keq]
-            _=Nat.choose (i+1) (i+1):=by sorry
+            _=Nat.choose (i+1) (i+1)+∑ n in ∅, Nat.choose n (i+1):=by rw[← Finset.add_sum_Ico_eq_sum_Icc ineq2 ,Finset.Ico_self]
+            _=Nat.choose (i+1) (i+1):=by simp[Finset.sum_empty]
             _=Nat.choose (i+1+1) (i+1+1):=by rw[Nat.choose_self (i+1),Nat.choose_self (i+1+1)]
             _=Nat.choose (i+1+1) (k+1):=by rw[keq]
 
